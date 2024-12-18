@@ -41,6 +41,7 @@ class Product(models.Model):
         related_name="catalog",
     )
     price = models.DecimalField(
+        verbose_name="Цена",
         max_digits=10,
         decimal_places=2,
         null=False,

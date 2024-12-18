@@ -1,28 +1,58 @@
-from lib2to3.fixes.fix_input import context
-
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
+from django.urls import reverse_lazy, reverse
+from django.views import View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 
 from catalog.models import Product
 
 
 def home(request):
-    """Контроллер для отображения домашней страницы."""
-    products = Product.objects.all()
-    context = {"products": products}
-    return render(request, "home.html", context)
+    """Контроллер для домашней страницы."""
+    return render(request, "catalog/home.html")
 
 
-def contacts(request):
-    """Контроллер для отображения страницы с контактной информацией."""
-    if request.method == "POST":
-        name = request.POST.get("name")
-        massage = request.POST.get("massage")
+class CatalogProductListView(ListView):
+    model = Product
+    template_name = "catalog/product_list.html"
+    context_object_name = "product_list"
+
+
+class ContactsView(View):
+    @staticmethod
+    def get(request):
+        return render(request, 'catalog/contacts.html')
+
+    @staticmethod
+    def post(request):
+        name = request.POST.get('name')
+        massage = request.POST.get('massage')
         return HttpResponse(f"Спасибо, {name}. Сообщение получено.")
-    return render(request, "contacts.html")
 
 
-def product_detail(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-    context = {"product": product}
-    return render(request, "product_detail.html", context)
+class CatalogProductDetailView(DetailView):
+    model = Product
+    template_name = "catalog/product_detail.html"
+    context_object_name = "product"
+
+
+class CatalogProductCreateView(CreateView):
+    model = Product
+    fields = ("name", "description", "image", "category", "price")
+    template_name = "catalog/product_create.html"
+    success_url = reverse_lazy("catalog:product_list")
+
+
+class CatalogProductUpdateView(UpdateView):
+    model = Product
+    fields = ("name", "description", "image", "category", "price")
+    success_url = reverse_lazy("catalog:product_list")
+
+
+    def get_success_url(self):
+        return reverse("catalog:product_detail", args=[self.kwargs.get("pk")])
+
+
+class CatalogProductDeleteView(DeleteView):
+    model = Product
+    success_url = reverse_lazy("catalog:product_list")
