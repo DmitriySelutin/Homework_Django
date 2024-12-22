@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load my_tags %}
+{% block title %} Подробнее о продукте {% endblock %}
+
+{% block content %}
+<div class="row text-center">
+    <div class="card" style="width: 18rem;">
+        <img src="{{ product.image | media_filter }}" class="card-img-top" alt="product">
+        <div class="card-body">
+            <h5 class="card-title">{{ product.name }}</h5>
+            <h4 class="card-text">{{ product.price }}</h4>
+            <p class="card-text">{{ product.description|truncatechars:100 }}</p>
+            <p class="card-text">{{ product.category}}</p>
+            <a href="#" class="btn btn-primary">Купить</a>
+            <a href="{% url 'catalog:home' %}" class="btn btn-primary">Назад на главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
