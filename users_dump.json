@@ -1,0 +1,49 @@
+[
+  {
+    "model": "users.user",
+    "pk": 3,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$u2DXJhGPzVbGmKGNgFRQ13$eahyUFeuErG+dtOnMURi0lFOtICP28YY1EVBXGMdmz8=",
+      "last_login": "2025-03-30T19:49:18.419Z",
+      "is_superuser": true,
+      "first_name": "",
+      "last_name": "",
+      "is_staff": true,
+      "is_active": true,
+      "date_joined": "2025-01-10T18:19:15.401Z",
+      "username": "",
+      "email": "admin@example.com",
+      "avatar": "",
+      "phone": null,
+      "country": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 10,
+    "fields": {
+      "password": "pbkdf2_sha256$870000$oqiniu2L2dj5T6AMl5hm3N$il+Jz2Ic0NfsPR3fL/xm3dgigGRm9Tb3fYPLDrBxRs8=",
+      "last_login": "2025-01-11T08:03:21Z",
+      "is_superuser": false,
+      "first_name": "�������",
+      "last_name": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2025-01-11T07:58:06Z",
+      "username": "Dima",
+      "email": "dmitriy.selutin@yandex.ru",
+      "avatar": "",
+      "phone": null,
+      "country": "Russia",
+      "groups": [
+        1
+      ],
+      "user_permissions": [
+        37,
+        27
+      ]
+    }
+  }
+]
