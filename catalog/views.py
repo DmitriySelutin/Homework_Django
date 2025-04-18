@@ -12,6 +12,12 @@ from django.shortcuts import render, redirect
 from catalog.forms import ProductForm, ProductModeratorForm
 from catalog.models import Product
 
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.core.cache import cache
+
+from catalog.services import get_products_from_cache
+
 
 def home(request):
     """Контроллер для домашней страницы."""
@@ -30,10 +36,14 @@ class ContactsView(View):
         return HttpResponse(f"Спасибо, {name}. Сообщение получено.")
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class ProductListView(ListView):
     model = Product
     template_name = "catalog/product_list.html"
     context_object_name = "product_list"
+
+    def get_queryset(self):
+        return get_products_from_cache()
 
 
 class ProductDetailView(DetailView):
@@ -80,3 +90,4 @@ class ProductDeleteView(DeleteView):
 
     def handle_no_permission(self):
         return redirect('catalog:product_list')
+
