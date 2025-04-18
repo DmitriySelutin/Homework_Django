@@ -46,7 +46,6 @@ class ProductListView(ListView):
         return get_products_from_cache()
 
 
-@method_decorator(cache_page(60 * 15), name="dispatch")
 class ProductDetailView(DetailView):
     model = Product
     template_name = "catalog/product_detail.html"
