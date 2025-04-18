@@ -1,13 +1,22 @@
 from audioop import reverse
 
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import PermissionDenied
+
 from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
-from catalog.forms import ProductForm
+from catalog.forms import ProductForm, ProductModeratorForm
 from catalog.models import Product
+
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+from django.core.cache import cache
+
+from catalog.services import get_products_from_cache
 
 
 def home(request):
@@ -27,12 +36,17 @@ class ContactsView(View):
         return HttpResponse(f"Спасибо, {name}. Сообщение получено.")
 
 
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class ProductListView(ListView):
     model = Product
     template_name = "catalog/product_list.html"
     context_object_name = "product_list"
 
+    def get_queryset(self):
+        return get_products_from_cache()
 
+
+@method_decorator(cache_page(60 * 15), name="dispatch")
 class ProductDetailView(DetailView):
     model = Product
     template_name = "catalog/product_detail.html"
@@ -45,6 +59,13 @@ class ProductCreateView(CreateView):
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("catalog:product_list")
 
+    def form_valid(self, form):
+        product = form.save()
+        user = self.request.user
+        product.owner = user
+        product.save()
+        return super().form_valid(form)
+
 
 class ProductUpdateView(UpdateView):
     model = Product
@@ -52,11 +73,22 @@ class ProductUpdateView(UpdateView):
     template_name = "catalog/product_form.html"
     success_url = reverse_lazy("catalog:product_list")
 
-
-    def get_success_url(self):
-        return reverse("catalog:product_detail", args=[self.kwargs.get("pk")])
+    def get_form_class(self):
+        user = self.request.user
+        if user == self.object.owner:
+            return ProductForm
+        if user.has_perm('catalog.can_unpublish_product'):
+            return ProductModeratorForm
+        raise PermissionDenied
 
 
 class ProductDeleteView(DeleteView):
     model = Product
     success_url = reverse_lazy("catalog:product_list")
+
+    def test_func(self):
+        return self.request.user.is_authenticated and self.request.user.has_perm('catalog.delete_product')
+
+    def handle_no_permission(self):
+        return redirect('catalog:product_list')
+
